@@ -13,16 +13,18 @@ pipeline {
                     sh 'docker build -t raavan25496/april302025project:v1 .'
                 }
             }
-        }
-          stage('Docker login') {
-            steps {
+        }       
+		  stage('Docker login and push') {
+		    steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-pwd', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                    sh "echo $PASS | docker login -u $USER --password-stdin"
-                    sh 'docker push raavan25496/april302025project:v1'
+                    sh """
+                        echo "$PASS" | docker login -u "$USER" --password-stdin
+                        docker push raavan25496/april302025project:v1
+                    """
                 }
             }
         }
-        
+
         
         stage('Deploy to k8s'){
             when{ expression {env.GIT_BRANCH == 'master'}}
